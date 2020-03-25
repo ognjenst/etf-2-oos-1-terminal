@@ -29,6 +29,7 @@ namespace OperativniProjektni
                     switch (input)
                     {
                         case "go":
+                            // Not working
                             string dir = @"C:\Users\ognje\Desktop\";
                             Directory.SetCurrentDirectory(dir);
                             break;
