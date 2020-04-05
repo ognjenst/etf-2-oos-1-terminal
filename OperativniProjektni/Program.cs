@@ -11,7 +11,30 @@ namespace OperativniProjektni
     class Program
     {
 
+        static void PrintDat(String fileName)
+        {
+            String[] temp = fileName.Split(".");
+            if(temp[temp.Length - 1] != "txt")
+            {
+                Console.WriteLine("Error. File {0} with extention {1} is not a text file.", fileName, temp[temp.Length - 1]);
+                return;
+            }
 
+            try
+            {
+                if (File.Exists(fileName))
+                {
+                    Console.WriteLine(File.ReadAllText(fileName));
+                }
+                else
+                {
+                    Console.WriteLine("Error: File does not exist.");
+                }
+            } catch(Exception e)
+            {
+                Console.WriteLine("Error: {0}", e.ToString());
+            }
+        }
         static void ListDirectory(String[] param)
         {
             if (param.Length == 1)
@@ -68,7 +91,7 @@ namespace OperativniProjektni
                     builder.Append(ListFolder(subdirectory, indentation, maxLevel, deep + 1));
             }
 
-            foreach (var file in directory.GetFiles())
+            foreach (var file   in directory.GetFiles())
                 builder.AppendLine(string.Concat(Enumerable.Repeat(indentation, deep + 1)) + file.Name);
 
             return builder.ToString();
@@ -90,9 +113,9 @@ namespace OperativniProjektni
                     if (u["username"] == username && u["password"] == password)
                     {
                         user = u["username"];
-
                         // A bit of an art
                         Console.Clear();
+                        Console.WriteLine("CDMLike interface 1.0");
                         Console.WriteLine("====================================================");
                         Console.WriteLine(" __      __       .__                               ");
                         Console.WriteLine("/  \\    /  \\ ____ |  |   ____  ____   _____   ____  ");
@@ -165,6 +188,61 @@ namespace OperativniProjektni
                 Console.WriteLine("The process failed: {0}", e.ToString());
             }
         }
+
+        static void FindDat(DirectoryInfo directory, String fileName, string indentation = "\t", int maxLevel = -1, int deep = 0)
+        {
+            if (maxLevel == -1 || maxLevel < deep)
+            {
+                foreach (var subdirectory in directory.GetDirectories())
+                    FindDat(subdirectory, fileName);
+            }
+
+            foreach (var file in directory.GetFiles())
+            {
+                if (file.Name == fileName)
+                    Console.WriteLine(file.FullName);
+            }
+        }
+
+        static void FindInFile(String[] param)
+        {
+            String fileName = param[param.Length - 1];
+            String[] temp = fileName.Split(".");
+            if (temp[temp.Length - 1] != "txt")
+            {
+                Console.WriteLine("Error. File {0} with extention {1} is not a text file.", fileName, temp[temp.Length - 1]);
+                return;
+            }
+
+            try
+            {
+                if (File.Exists(fileName))
+                {
+                    int counter = 0;
+                    string line;
+                    var listArray = new List<String>(param);
+                    listArray.RemoveAt(0);
+                    listArray.RemoveAt(listArray.Count - 1);
+
+                    StreamReader file = new System.IO.StreamReader(fileName);
+                    while((line = file.ReadLine()) != null)
+                    {
+                        if (line.Contains(String.Join(" ", listArray.ToArray())))
+                            Console.WriteLine("Text was found on line {0}", counter + 1);
+                        counter++;
+                    }
+                    file.Close();
+                }
+                else
+                {
+                    Console.WriteLine("Error: File does not exist.");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: {0}", e.ToString());
+            }
+        }
         static void Main(string[] args)
         {
             String currentDir = "";
@@ -207,6 +285,24 @@ namespace OperativniProjektni
                         case "logout":
                             logged = Logout();
                             username = "Guest";
+                            break;
+                        case "print":
+                            if (param.Length == 1)
+                                Console.WriteLine("Error: Missing file name");
+                            else
+                                PrintDat(param[1]);
+                            break;
+                        case "find":
+                            if(param.Length < 2)
+                                Console.WriteLine("Error, missing parameters");
+                            else
+                                FindInFile(param);
+                            break;
+                        case "findDat":
+                            if (param.Length == 1)
+                                Console.WriteLine("Error: No file name.");
+                            else
+                                FindDat(new DirectoryInfo(currentDir), param[1]);
                             break;
                         case "create":
                             if(param.Length == 1)
