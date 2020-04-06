@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,63 +8,50 @@ namespace OperativniProjektni
 {
     class Program
     {
-
-        static void PrintDat(String fileName)
+        static void PrintDat(string fileName)
         {
-            String[] temp = fileName.Split(".");
-            if(temp[temp.Length - 1] != "txt")
+            string[] temp = fileName.Split(".");
+            if(temp[^1] != "txt")
             {
-                Console.WriteLine("Error. File {0} with extention {1} is not a text file.", fileName, temp[temp.Length - 1]);
+                Console.WriteLine("Error. File {0} with extention {1} is not a text file.", fileName, temp[^1]);
                 return;
             }
 
             try
             {
                 if (File.Exists(fileName))
-                {
                     Console.WriteLine(File.ReadAllText(fileName));
-                }
                 else
-                {
                     Console.WriteLine("Error: File does not exist.");
-                }
             } catch(Exception e)
             {
                 Console.WriteLine("Error: {0}", e.ToString());
             }
         }
-        static void ListDirectory(String[] param)
+        static void ListDirectory(string[] param)
         {
             if (param.Length == 1)
-            {
                 try
-                {
+                { 
                     Console.WriteLine(ListFolder(new DirectoryInfo("./"), "——"));
-                } catch(Exception e)
+                } 
+                catch(Exception e)
                 {
                     Console.WriteLine("Error:{0} ", e.ToString());
                 }
-            }
             else
-            {
                 try
                 {
                     if (Directory.Exists(param[1]))
-                    {
                         Console.WriteLine(ListFolder(new DirectoryInfo(@"./" + param[1]), "——"));
-                    }
                     else
-                    {
                         Console.WriteLine("Directory does not exists.");
-                    }
                 } catch (Exception e)
                 {
                     Console.WriteLine("Error: {0}", e.ToString());
-                }
-            }
-                
+                } 
         }
-        static String ChangeDir(String dir, String currentDir)
+        static string ChangeDir(string dir, string currentDir)
         {
             try
             {
@@ -82,75 +67,18 @@ namespace OperativniProjektni
         static string ListFolder(DirectoryInfo directory, string indentation = "\t", int maxLevel = -1, int deep = 0)
         {
             StringBuilder builder = new StringBuilder();
-
-            builder.AppendLine(string.Concat(Enumerable.Repeat(indentation, deep)) + directory.Name);
-
+            builder.AppendLine(String.Concat(Enumerable.Repeat(indentation, deep)) + directory.Name);
             if (maxLevel == -1 || maxLevel < deep)
-            {
                 foreach (var subdirectory in directory.GetDirectories())
                     builder.Append(ListFolder(subdirectory, indentation, maxLevel, deep + 1));
-            }
 
-            foreach (var file   in directory.GetFiles())
-                builder.AppendLine(string.Concat(Enumerable.Repeat(indentation, deep + 1)) + file.Name);
+            foreach (var file in directory.GetFiles())
+                builder.AppendLine(String.Concat(Enumerable.Repeat(indentation, deep + 1)) + file.Name);
 
             return builder.ToString();
         }
 
-        static bool Login(ref String user)
-        {
-            Console.Write("Enter you username: ");
-            String username = Console.ReadLine();
-            Console.Write("Enter you password: ");
-            String password = Console.ReadLine();
-
-            try
-            {
-                String lib = File.ReadAllText("../../../users.json");
-                Dictionary<String, String>[] users = JsonConvert.DeserializeObject<Dictionary<string, string>[]>(lib);
-                foreach(Dictionary<String, String> u in users)
-                {
-                    if (u["username"] == username && u["password"] == password)
-                    {
-                        user = u["username"];
-                        // A bit of an art
-                        Console.Clear();
-                        Console.WriteLine("CDMLike interface 1.0");
-                        Console.WriteLine("====================================================");
-                        Console.WriteLine(" __      __       .__                               ");
-                        Console.WriteLine("/  \\    /  \\ ____ |  |   ____  ____   _____   ____  ");
-                        Console.WriteLine("\\   \\/\\/   // __ \\|  | _/ ___\\/  _ \\ /     \\_/ __ \\ ");
-                        Console.WriteLine(" \\        /\\  ___/|  |_\\  \\__(  <_> )  Y Y  \\  ___/ ");
-                        Console.WriteLine("  \\__/\\  /  \\___  >____/\\___  >____/|__|_|  /\\___  >");
-                        Console.WriteLine("       \\/       \\/          \\/            \\/     \\/ ");
-                        Console.WriteLine("====================================================");
-                        Console.WriteLine(); Console.WriteLine();
-                        return true;
-                    }
-                }
-                Console.WriteLine("Error. Username and password don't match!");
-                return false;
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error {0}", e.ToString());
-                return false;
-            }
-        }
-
-        static bool Logout()
-        {
-            Console.Clear();
-            Console.WriteLine("Operativni projektni");
-            Console.WriteLine("Student: Ognjen Stefanovic");
-            Console.WriteLine("Indeks: 1121/17");
-            Console.WriteLine("---------------------------");
-            Console.WriteLine();
-            return false;
-        }
-
-        static void MakeFile(String fileName)
+        static void MakeFile(string fileName)
         {
             try
             {
@@ -160,7 +88,7 @@ namespace OperativniProjektni
                     return;
                 }
 
-                File.Create(fileName);
+                _ = File.Create(fileName);
                 Console.WriteLine("File was created successfully at {0}", File.GetCreationTime(fileName));
             }
             catch (Exception e)
@@ -169,7 +97,7 @@ namespace OperativniProjektni
             }
         }
 
-        static void MakeFolder(String dir)
+        static void MakeFolder(string dir)
         {
             try
             {
@@ -179,7 +107,6 @@ namespace OperativniProjektni
                     return;
                 }
 
-                // Try to create the directory.
                 DirectoryInfo di = Directory.CreateDirectory(dir);
                 Console.WriteLine("The directory was created successfully at {0}.", Directory.GetCreationTime(dir));
             }
@@ -189,28 +116,24 @@ namespace OperativniProjektni
             }
         }
 
-        static void FindDat(DirectoryInfo directory, String fileName, string indentation = "\t", int maxLevel = -1, int deep = 0)
+        static void FindDat(DirectoryInfo directory, string fileName,  int maxLevel = -1, int deep = 0)
         {
             if (maxLevel == -1 || maxLevel < deep)
-            {
                 foreach (var subdirectory in directory.GetDirectories())
                     FindDat(subdirectory, fileName);
-            }
 
             foreach (var file in directory.GetFiles())
-            {
                 if (file.Name == fileName)
                     Console.WriteLine(file.FullName);
-            }
         }
 
-        static void FindInFile(String[] param)
+        static void FindInFile(string[] param)
         {
-            String fileName = param[param.Length - 1];
-            String[] temp = fileName.Split(".");
-            if (temp[temp.Length - 1] != "txt")
+            string fileName = param[^1];
+            string[] temp = fileName.Split(".");
+            if (temp[^1] != "txt")
             {
-                Console.WriteLine("Error. File {0} with extention {1} is not a text file.", fileName, temp[temp.Length - 1]);
+                Console.WriteLine("Error. File {0} with extention {1} is not a text file.", fileName, temp[^1]);
                 return;
             }
 
@@ -220,7 +143,7 @@ namespace OperativniProjektni
                 {
                     int counter = 0;
                     string line;
-                    var listArray = new List<String>(param);
+                    var listArray = new List<string>(param);
                     listArray.RemoveAt(0);
                     listArray.RemoveAt(listArray.Count - 1);
 
@@ -243,34 +166,57 @@ namespace OperativniProjektni
                 Console.WriteLine("Error: {0}", e.ToString());
             }
         }
-        static void Main(string[] args)
-        {
-            String currentDir = "";
-            String username = "";
-            bool logged = false;
-            bool run = true;
-            String input = "";
 
-            // Welcome
+        static void BasicInfoPrint()
+        {
+            Console.Clear();
             Console.WriteLine("Operativni projektni");
             Console.WriteLine("Student: Ognjen Stefanovic");
             Console.WriteLine("Indeks: 1121/17");
             Console.WriteLine("---------------------------");
             Console.WriteLine();
+        }
+        static void WelcomePrint()
+        {
+            Console.Clear();
+            Console.WriteLine("CDMLike interface 1.0");
+            Console.WriteLine("====================================================");
+            Console.WriteLine(" __      __       .__                               ");
+            Console.WriteLine("/  \\    /  \\ ____ |  |   ____  ____   _____   ____  ");
+            Console.WriteLine("\\   \\/\\/   // __ \\|  | _/ ___\\/  _ \\ /     \\_/ __ \\ ");
+            Console.WriteLine(" \\        /\\  ___/|  |_\\  \\__(  <_> )  Y Y  \\  ___/ ");
+            Console.WriteLine("  \\__/\\  /  \\___  >____/\\___  >____/|__|_|  /\\___  >");
+            Console.WriteLine("       \\/       \\/          \\/            \\/     \\/ ");
+            Console.WriteLine("====================================================");
+            Console.WriteLine(); Console.WriteLine();
+        }
+        static void Main()
+        {
+            Authentication Auth = Authentication.MakeAuthClient();
+            BasicInfoPrint();
+
+            string currentDir = "";
+            bool run = true;
+            string input;
+
+           
             while (run)
             {
-                if (logged)
-                    Console.Write(username + "@" + currentDir + "->");
+                if (Auth.IsAuth())
+                    Console.Write(Auth.getUsername() + "@" + currentDir + "->");
                 else
                     Console.Write("Guest ->");
                 input = Console.ReadLine();
-                if (logged)
+                if (Auth.IsAuth())
                 {
-                    String[] param = input.Split(null);
+                    string[] param = input.Split(null);
                     switch (param[0])
                     {
                         case "go":
-                            currentDir = ChangeDir(param[1], currentDir);
+                            if (param.Length < 2)
+                                Console.WriteLine("Error: Missing path.");
+                            else
+                                currentDir = ChangeDir(param[1], currentDir);
                             break;
                         case "where":
                             Console.WriteLine(currentDir);
@@ -279,12 +225,12 @@ namespace OperativniProjektni
                             ListDirectory(param);
                             break;
                         case "exit":
-                            logged = Logout();
+                            Auth.Logout();
                             run = false;
                             break;
                         case "logout":
-                            logged = Logout();
-                            username = "Guest";
+                            Auth.Logout();
+                            BasicInfoPrint();
                             break;
                         case "print":
                             if (param.Length == 1)
@@ -333,10 +279,20 @@ namespace OperativniProjektni
                     switch (input)
                     {
                         case "login":
-                            logged = Login(ref username);
-                            currentDir = AppContext.BaseDirectory;
+                            Console.Write("Enter you username: ");
+                            string authUsername = Console.ReadLine();
+                            Console.Write("Enter you password: ");
+                            string authPassword = Console.ReadLine();
+
+                            if (Auth.Login(authUsername, authPassword))
+                            { 
+                                currentDir = AppContext.BaseDirectory;
+                                WelcomePrint();
+                            }
+
                             break;
                         case "exit":
+                            Auth.Logout();
                             run = false;
                             break;
                         default:
